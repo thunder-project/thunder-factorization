@@ -24,9 +24,9 @@ Use PCA to recover the low-rank structure
 ```python
 from factorization import PCA
 alg = PCA()
-model = alg.fit(X)
+W, T = alg.fit(X)
 ```
-## useage
+## usage
 
 ## api
 
