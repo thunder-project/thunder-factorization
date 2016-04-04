@@ -43,6 +43,7 @@ Constructors allow for customization of the algorithm.
 Estimates each series as a linear combination of statistically independent components: `X = WS`.
 Parameters to constructor:
 - `k`: number of sources
+
 Return values:
 - `W`: weights
 - `S`: sources
@@ -52,24 +53,28 @@ Return values:
 Estimates each series as a linear combination of non-negative components: `X = WH`.
 Parameters to constructor:
 - `k`: number of components
+
 Return values from `fit`:
 - `W`: weights
 - `H`: components
 
 
-#### `PCA`
+#### `W, T = PCA(args).fit(X)`
 Performs dimensionality reduction by finding an ordered set of components formed by an orthogonal projection
 that successively explain the maximum amount of remaining variance: `T = XW`.
 Parameters to constructor:
 - `k`: number of components
+
 Return values from `fit`
 - `T`: scores
 - `W`: components
 
-#### `SVD`
+#### `U, S, V = SVD(args).fit(X)`
 Generalization of the eigen-decomposition to non-square matrices: `X = USV*`.
 Parameters to constructor:
 - `k`: number of components
+
 Return values from `fit`:
 - `U`: left singular vectors
+- `S`: singular values
 - `V`: right singular vectors
