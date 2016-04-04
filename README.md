@@ -32,8 +32,6 @@ model = alg.fit(X)
 
 ##### `ICA`
 
-##### `KMeans`
-
 ##### `NMF`
 
 ##### `PCA`
