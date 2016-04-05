@@ -39,15 +39,16 @@ Fits the model to a data matrix
 
 Constructors allow for customization of the algorithm.
 
-#### `W, S = ICA(args).fit(X)`
-Estimates each series as a linear combination of statistically independent components: `X = WS`.
+#### `W, S, A = ICA(args).fit(X)`
+Unmixes statistically independent components: `S = XW^T`.
 
 Parameters to constructor:
 - `k`: number of sources
 
 Return values:
-- `W`: weights
+- `W`: demixing matrix
 - `S`: sources
+- `A`: mixing matrix, inverse of `W`
 
 
 #### `W, H = NMF(args).fit(X)`
