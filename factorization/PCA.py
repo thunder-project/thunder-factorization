@@ -20,9 +20,9 @@ class PCA(object):
 
     def _fit_local(self, data):
         from sklearn.decomposition import PCA
-        arr = data.toarray()
-        pca = PCA(n_components=self.k).fit(arr)
-        return pca.components_, Series(pca.transform(arr))
+        pca = PCA(n_components=self.k)
+        t = pca.fit_transform(data.toarray())
+        return pca.components_, Series(t)
 
     def _fit_spark(self, data):
 
