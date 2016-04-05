@@ -26,7 +26,7 @@ class ICA(object):
         from sklearn.decomposition import FastICA
         model = FastICA(n_components=self.c)
         signals = model.fit_transform(data.toarray())
-        return model.components_, Series(signals), model.mixing_
+        return model.components_.T, Series(signals), model.mixing_.T
 
     def _fit_spark(self, data):
         """
@@ -89,4 +89,4 @@ class ICA(object):
         # get components
         sigs = data.times(w.T)
 
-        return w, sigs, a
+        return w.T, sigs, a.T

@@ -22,7 +22,7 @@ class PCA(object):
         from sklearn.decomposition import PCA
         pca = PCA(n_components=self.k)
         t = pca.fit_transform(data.toarray())
-        return pca.components_, Series(t)
+        return pca.components_.T, Series(t)
 
     def _fit_spark(self, data):
 
@@ -34,6 +34,6 @@ class PCA(object):
         u, s, v = SVD(k=self.k, method=self.svdMethod).fit(data)
 
         scores = u.times(diag(s))
-        components = v.T
+        components = v
 
         return components, scores

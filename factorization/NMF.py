@@ -31,7 +31,7 @@ class NMF(object):
         from sklearn.decomposition import NMF
         nmf = NMF(n_components=self.k)
         h = nmf.fit_transform(data.toarray())
-        return Series(h), nmf.components_
+        return nmf.components_, Series(h)
 
     def _fit_spark(self, data):
         from numpy import add, any, diag, dot, inf, maximum, outer, sqrt, apply_along_axis
@@ -157,4 +157,4 @@ class NMF(object):
         else:
             raise Exception("Algorithm %s is not supported" % self.method)
 
-        return fromrdd(w, shape=(data.shape[0], h.shape[0]), dtype=h.dtype), h
+        return h, fromrdd(w, shape=(data.shape[0], h.shape[0]), dtype=h.dtype)

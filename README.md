@@ -40,26 +40,26 @@ Fits the model to a data matrix
 Constructors allow for customization of the algorithm.
 
 #### `W, S, A = ICA(args).fit(X)`
-Unmixes statistically independent components: `S = XW^T`.
+Unmixes statistically independent components: `S = XW`.
 
 Parameters to constructor:
 - `k`: number of sources
 
 Return values:
-- `W`: demixing matrix
-- `S`: sources
-- `A`: mixing matrix, inverse of `W`
+- `W`: demixing matrix, dimensions `features x components`
+- `S`: sources, dimensions `samples x components`
+- `A`: mixing matrix (inverse of `W`), dimensions `components x features`
 
 
 #### `W, H = NMF(args).fit(X)`
-Estimates each series as a linear combination of non-negative components: `X = WH`.
+Estimates each series as a linear combination of non-negative components: `X = HW`.
 
 Parameters to constructor:
 - `k`: number of components
 
 Return values from `fit`:
-- `W`: weights
-- `H`: components
+- `W`: weights, dimensions `components x features`
+- `H`: components, dimensions `samples x components`
 
 
 #### `W, T = PCA(args).fit(X)`
@@ -70,16 +70,16 @@ Parameters to constructor:
 - `k`: number of components
 
 Return values from `fit`
-- `T`: scores
-- `W`: components
+- `W`: weights, dimensions `components x features`
+- `H`: components, dimensions `samples x components`
 
 #### `U, S, V = SVD(args).fit(X)`
-Generalization of the eigen-decomposition to non-square matrices: `X = USV*`.
+Generalization of the eigen-decomposition to non-square matrices: `X = U * diag(S) * V^T`.
 
 Parameters to constructor:
 - `k`: number of components
 
 Return values from `fit`:
-- `U`: left singular vectors
-- `S`: singular values
-- `V`: right singular vectors
+- `U`: left singular vectors, dimensions `samples x components`
+- `S`: singular values, dimensions `1 x components`
+- `V`: right singular vectors, dimensions `components x features`
