@@ -9,4 +9,7 @@ def toseries(y):
     elif type(y) is BoltArraySpark:
         y = fromrdd(y.tordd())
 
+    if len(y.shape) != 2:
+        raise ValueError("factorization on for 2-dimensional arrays")
+
     return y
