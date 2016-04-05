@@ -35,7 +35,7 @@ class ICA(object):
 
         from numpy import random, sqrt, zeros, real, dot, outer, diag, transpose
         from scipy.linalg import sqrtm, inv, orth
-        from factorization import SVD
+        from .SVD import SVD
 
         n = data.shape[0]
         d = data.shape[1]

@@ -1,3 +1,4 @@
+from thunder.series import Series
 from .utils import toseries
 
 class PCA(object):
@@ -5,8 +6,34 @@ class PCA(object):
     Algorithm for principle component analysis
     """
 
-    def __init__(k):
+    def __init__(self, k=3, svdMethod='auto'):
         self.k = k
+        self.svdMethod = svdMethod
 
-    def fit(X):
-        pass
+    def fit(self, X):
+        X = toseries(X)
+
+        if X.mode == "local":
+            return self._fit_local(X)
+        if X.mode == "spark":
+            return self._fit_spark(X)
+
+    def _fit_local(self, data):
+        from sklearn.decomposition import PCA
+        arr = data.toarray()
+        pca = PCA(n_components=self.k).fit(arr)
+        return pca.components_, Series(pca.transform(arr))
+
+    def _fit_spark(self, data):
+
+        from .SVD import SVD
+        from numpy import diag
+
+        mat = data.center(1)
+
+        u, s, v = SVD(k=self.k, method=self.svdMethod).fit(data)
+
+        scores = u.times(diag(s))
+        components = v.T
+
+        return components, scores
