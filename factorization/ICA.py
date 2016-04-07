@@ -22,41 +22,41 @@ class ICA(object):
         if X.mode == "spark":
             return self._fit_spark(X)
 
+
     def _fit_local(self, data):
+
         from sklearn.decomposition import FastICA
-        model = FastICA(n_components=self.c)
+        model = FastICA(n_components=self.c, fun="cube", max_iter=self.maxIter, tol=self.tol)
         signals = model.fit_transform(data.toarray())
-        return model.components_.T, Series(signals), model.mixing_.T
+        return model.components_, signals, model.mixing_
+
 
     def _fit_spark(self, data):
-        """
-        Fit independent components using an iterative fixed-point algorithm
-        """
 
+        from .SVD import SVD
         from numpy import random, sqrt, zeros, real, dot, outer, diag, transpose
         from scipy.linalg import sqrtm, inv, orth
-        from .SVD import SVD
 
-        n = data.shape[0]
-        d = data.shape[1]
+        nrows = data.shape[0]
+        ncols = data.shape[1]
 
         if self.k is None:
-            self.k = d
+            self.k = ncols
 
         if self.c > self.k:
             raise Exception("number of independent comps " + str(self.c) +
                             " must be less than the number of principal comps " + str(self.k))
 
-        if self.k > d:
+        if self.k > ncols:
             raise Exception("number of principal comps " + str(self.k) +
-                            " must be less than the data dimensionality " + str(d))
+                            " must be less than the data dimensionality " + str(ncols))
 
         # reduce dimensionality
-        U, S, V = SVD(k=self.k, method=self.svdMethod).fit(data)
+        u, s, v = SVD(k=self.k, method=self.svdMethod).fit(data)
 
         # whiten data
-        whtMat = real(dot(inv(diag(S/sqrt(n))), V.T))
-        unWhtMat = real(dot(V, diag(S/sqrt(n))))
+        whtMat = real(dot(inv(diag(s/sqrt(nrows))), v.T))
+        unWhtMat = real(dot(v, diag(s/sqrt(nrows))))
         wht = data.times(whtMat.T)
 
         # do multiple independent component extraction
@@ -71,7 +71,7 @@ class ICA(object):
         while (niter < self.maxIter) & ((1 - minAbsCos) > self.tol):
             niter += 1
             # update rule for pow3 non-linearity (TODO: add others)
-            b = wht.tordd().values().map(lambda x: outer(x, dot(x, b) ** 3)).sum() / n - 3 * b
+            b = wht.tordd().values().map(lambda x: outer(x, dot(x, b) ** 3)).sum() / nrows - 3 * b
             # make orthogonal
             b = dot(b, real(sqrtm(inv(dot(transpose(b), b)))))
             # evaluate error
@@ -89,4 +89,4 @@ class ICA(object):
         # get components
         sigs = data.times(w.T)
 
-        return w.T, sigs, a.T
+        return w, sigs, a

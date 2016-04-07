@@ -2,7 +2,7 @@ import pytest
 import station
 
 def pytest_addoption(parser):
-    parser.addoption("--engine", action="store", default="local", 
+    parser.addoption("--engine", action="store", default="spark", 
                      help="engine to run tests with")
 
 @pytest.fixture(scope='module')

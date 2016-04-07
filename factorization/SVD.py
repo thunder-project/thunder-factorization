@@ -16,9 +16,6 @@ class SVD(object):
 
         X = toseries(X)
 
-        if len(X.shape) != 2:
-            raise ValueError("Input for SVD must be 2-dimensional")
-
         if X.mode == "local":
             return self._fit_local(X)
         else:
@@ -28,7 +25,7 @@ class SVD(object):
 
         from sklearn.utils.extmath import randomized_svd
 
-        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=5, random_state=None)
+        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.maxIter)
 
         return Series(U), S, VT.T
 
@@ -38,11 +35,12 @@ class SVD(object):
         from scipy.linalg import inv, orth
         from numpy.linalg import eigh
 
-        n = mat.shape[0]
-        d = mat.shape[1]
+        nrows = mat.shape[0]
+        ncols = mat.shape[1]
+
 
         if self.method == 'auto':
-            if d < 750:
+            if len(mat.index) < 750:
                 method = 'direct'
             else:
                 method = 'em'
@@ -52,12 +50,12 @@ class SVD(object):
         if method == 'direct':
 
             # get the normalized gramian matrix
-            cov = mat.gramian().toarray() / n
+            cov = mat.gramian().toarray() / nrows
 
             # do a local eigendecomposition
             eigw, eigv = eigh(cov)
             inds = argsort(eigw)[::-1]
-            s = sqrt(eigw[inds[0:self.k]]) * sqrt(n)
+            s = sqrt(eigw[inds[0:self.k]]) * sqrt(nrows)
             v = eigv[:, inds[0:self.k]].T
 
             # project back into data, normalize by singular values
@@ -66,7 +64,7 @@ class SVD(object):
         if method == 'em':
 
             # initialize random matrix
-            c = random.rand(self.k, d)
+            c = random.rand(self.k, mat.ncols)
             niter = 0
             error = 100
 
@@ -107,7 +105,7 @@ class SVD(object):
 
                 # compute the new c using an accumulator
                 # direct approach: c = mat.rows().map(lambda x: outer(x, dot(x, premult2.value))).sum()
-                runSum = mat.tordd().context.accumulator(zeros((d, self.k)), MatrixAccumulatorParam())
+                runSum = mat.tordd().context.accumulator(zeros((ncols, self.k)), MatrixAccumulatorParam())
                 mat.tordd().values().foreach(lambda x: outerSumOther(x, preMult2.value))
                 c = runSum.value
 
@@ -120,10 +118,10 @@ class SVD(object):
             # project data into subspace spanned by columns of c
             # use standard eigendecomposition to recover an orthonormal basis
             c = orth(c.T)
-            cov = mat.times(c).gramian().toarray() / n
+            cov = mat.times(c).gramian().toarray() / nrows
             eigw, eigv = eigh(cov)
             inds = argsort(eigw)[::-1]
-            s = sqrt(eigw[inds[0:self.k]]) * sqrt(n)
+            s = sqrt(eigw[inds[0:self.k]]) * sqrt(nrows)
             v = dot(eigv[:, inds[0:self.k]].T, c.T)
             u = mat.times(v.T / s)
 
