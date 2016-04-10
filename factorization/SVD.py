@@ -1,3 +1,4 @@
+from numpy import random
 from thunder.series import Series
 from .utils import toseries
 
@@ -6,11 +7,12 @@ class SVD(object):
     Algorithm for singular value decomposition
     """
 
-    def __init__(self, k=3, method="auto", maxIter=20, tol=0.00001):
+    def __init__(self, k=3, method="auto", maxIter=20, tol=0.00001, seed=None):
         self.k = k
         self.method = method
         self.maxIter = maxIter
         self.tol = tol
+        self.seed = seed
 
     def fit(self, X):
 
@@ -25,13 +27,13 @@ class SVD(object):
 
         from sklearn.utils.extmath import randomized_svd
 
-        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.maxIter)
+        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, random_state=self.seed)
 
         return Series(U), S, VT.T
 
     def _fit_spark(self, mat):
 
-        from numpy import argsort, dot, outer, random, sqrt, sum
+        from numpy import argsort, dot, outer, sqrt, sum, zeros
         from scipy.linalg import inv, orth
         from numpy.linalg import eigh
 
@@ -64,7 +66,8 @@ class SVD(object):
         if method == 'em':
 
             # initialize random matrix
-            c = random.rand(self.k, mat.ncols)
+            random.seed(self.seed)
+            c = random.rand(self.k, ncols)
             niter = 0
             error = 100
 
@@ -73,7 +76,7 @@ class SVD(object):
 
             class MatrixAccumulatorParam(AccumulatorParam):
                 def zero(self, value):
-                    return zeros(shape(value))
+                    return zeros(value.shape)
 
                 def addInPlace(self, val1, val2):
                     val1 += val2

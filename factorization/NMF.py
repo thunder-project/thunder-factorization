@@ -1,3 +1,4 @@
+from numpy import random
 from thunder.series import Series
 from thunder.series.readers import fromrdd
 from .utils import toseries
@@ -7,32 +8,14 @@ class NMF(object):
     Algorithm for non-negative matrix factorization
     """
 
-    def __init__(self, k=5, method='als', maxIter=20, tol=0.001, h0=None, wHist=False,
-                 reconHist='none', verbose=False):
+    def __init__(self, k=5, method='als', maxIter=20, tol=0.001, seed=None):
 
         # initialize input variables
         self.k = int(k)
         self.method = method
         self.maxIter = maxIter
         self.tol = tol
-        self.h0 = h0
-        self.reconHist = reconHist
-        self.verbose = verbose
-
-        # initialize output variables
-        self.h = None
-        self.w = None
-        self.hConvergence = list()
-
-        if wHist is True:
-            self.wConvergence = list()
-        else:
-            self.wConvergence = None
-
-        if reconHist == 'all':
-            self.reconErr = list()
-        else:
-            self.reconErr = None
+        self.seed = None
 
 
     def fit(self, X):
@@ -47,8 +30,12 @@ class NMF(object):
     def _fit_local(self, data):
 
         from sklearn.decomposition import NMF
-        nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.maxIter)
+
+        random.seed(self.seed)
+
+        nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.maxIter, random_state=self.seed)
         h = nmf.fit_transform(data.toarray())
+
         return h, nmf.components_
 
 
@@ -68,22 +55,14 @@ class NMF(object):
         k = self.k
         if k < 1:
             raise ValueError("Supplied k must be greater than 1.")
-        m = mat.values().first().size
-        if self.h0 is not None:
-            if any(self.h0 < 0):
-                raise ValueError("Supplied h0 contains negative entries.")
 
         # initialize NMF and begin als algorithm
-        if self.verbose:
-            print "Initializing NMF"
+        m = mat.values().first().size
         alsIter = 0
         hConvCurr = 100
 
-        if self.h0 is None:
-            # noinspection PyUnresolvedReferences
-            self.h0 = rand(k, m)
-
-        h = self.h0
+        random.seed(self.seed)
+        h = rand(k, m)
         w = None
 
         # goal is to solve R = WH subject to all entries of W,H >= 0
@@ -125,35 +104,8 @@ class NMF(object):
 
             # estimate convergence
             hConvCurr = norm(h-hOld)
-            self.hConvergence.append(hConvCurr)
-            if self.wConvergence is not None:
-                if wOld is not None:
-                    self.wConvergence.append(rddFrobeniusNorm(w, wOld))
-                else:
-                    self.wConvergence.append(inf)
-
-            # calculate reconstruction error
-            if self.reconHist == 'all':
-                recData = w.mapValues(lambda x: dot(x, h))
-                self.reconErr.append(rddFrobeniusNorm(mat, recData))
-
-            # report progress
-            if self.verbose:
-                print "finished als iteration %d with convergence = %.6f in H" % (alsIter, hConvCurr)
 
             # increment count
             alsIter += 1
-
-        # report on convergence
-        if self.verbose:
-            if hConvCurr <= self.tol:
-                print "Converged to specified tolerance."
-            else:
-                print "Warning: reached maxiter without converging to specified tolerance."
-
-        # calculate reconstruction error
-        if self.reconHist == 'final':
-                recData = w.mapValues(lambda x: dot(x, h))
-                self.reconErr = rddFrobeniusNorm(mat, recData)
 
         return w, h

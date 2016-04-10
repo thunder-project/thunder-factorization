@@ -1,3 +1,4 @@
+from numpy import random
 from thunder.series import Series
 from .utils import toseries
 
@@ -6,9 +7,9 @@ class ICA(object):
     Algorithm for independent component analysis
     """
 
-    def __init__(self, c, k=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=0):
+    def __init__(self, k, kPCA=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=None):
         self.k = k
-        self.c = c
+        self.kPCA = kPCA
         self.svdMethod = svdMethod
         self.maxIter = maxIter
         self.tol = tol
@@ -26,44 +27,47 @@ class ICA(object):
     def _fit_local(self, data):
 
         from sklearn.decomposition import FastICA
-        model = FastICA(n_components=self.c, fun="cube", max_iter=self.maxIter, tol=self.tol)
+
+        model = FastICA(n_components=self.k, fun="cube", max_iter=self.maxIter, tol=self.tol, random_state=self.seed)
         signals = model.fit_transform(data.toarray())
-        return model.components_, signals, model.mixing_
+
+        return model.components_, Series(signals), model.mixing_
 
 
     def _fit_spark(self, data):
 
         from .SVD import SVD
-        from numpy import random, sqrt, zeros, real, dot, outer, diag, transpose
+        from numpy import sqrt, zeros, real, dot, outer, diag, transpose
         from scipy.linalg import sqrtm, inv, orth
 
         nrows = data.shape[0]
         ncols = data.shape[1]
 
-        if self.k is None:
-            self.k = ncols
+        if self.kPCA is None:
+            self.kPCA = ncols
 
-        if self.c > self.k:
+        if self.k > self.kPCA:
             raise Exception("number of independent comps " + str(self.c) +
                             " must be less than the number of principal comps " + str(self.k))
 
-        if self.k > ncols:
+        if self.kPCA > ncols:
             raise Exception("number of principal comps " + str(self.k) +
                             " must be less than the data dimensionality " + str(ncols))
 
         # reduce dimensionality
-        u, s, v = SVD(k=self.k, method=self.svdMethod).fit(data)
+        u, s, v = SVD(k=self.kPCA, method=self.svdMethod, seed=self.seed).fit(data)
 
         # whiten data
         whtMat = real(dot(inv(diag(s/sqrt(nrows))), v.T))
         unWhtMat = real(dot(v, diag(s/sqrt(nrows))))
         wht = data.times(whtMat.T)
 
+        # seed the RNG
+        random.seed(self.seed)
+
         # do multiple independent component extraction
-        if self.seed != 0:
-            random.seed(self.seed)
-        b = orth(random.randn(self.k, self.c))
-        bOld = zeros((self.k, self.c))
+        b = orth(random.randn(self.kPCA, self.k))
+        bOld = zeros((self.kPCA, self.k))
         niter = 0
         minAbsCos = 0
         errVec = zeros(self.maxIter)
