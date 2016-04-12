@@ -27,7 +27,7 @@ class SVD(object):
 
         from sklearn.utils.extmath import randomized_svd
 
-        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, random_state=self.seed)
+        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.maxIter, random_state=self.seed)
 
         return Series(U), S, VT.T
 
@@ -42,7 +42,7 @@ class SVD(object):
 
 
         if self.method == 'auto':
-            if len(mat.index) < 750:
+            if ncols < 750:
                 method = 'direct'
             else:
                 method = 'em'

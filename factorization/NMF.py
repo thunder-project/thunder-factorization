@@ -1,5 +1,5 @@
 from numpy import random
-from thunder.series import Series
+from thunder.series import fromarray, fromrdd
 from thunder.series.readers import fromrdd
 from .utils import toseries
 
@@ -15,7 +15,7 @@ class NMF(object):
         self.method = method
         self.maxIter = maxIter
         self.tol = tol
-        self.seed = None
+        self.seed = seed
 
 
     def fit(self, X):
@@ -36,14 +36,13 @@ class NMF(object):
         nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.maxIter, random_state=self.seed)
         h = nmf.fit_transform(data.toarray())
 
-        return h, nmf.components_
+        return fromarray(h), nmf.components_
 
 
     def _fit_spark(self, data):
 
         from numpy import add, any, diag, dot, inf, maximum, outer, sqrt, apply_along_axis
         from numpy.linalg import inv, norm, pinv
-        from numpy.random import rand
 
         mat = data.tordd()
 
@@ -62,7 +61,7 @@ class NMF(object):
         hConvCurr = 100
 
         random.seed(self.seed)
-        h = rand(k, m)
+        h = random.rand(k, m)
         w = None
 
         # goal is to solve R = WH subject to all entries of W,H >= 0
@@ -108,4 +107,4 @@ class NMF(object):
             # increment count
             alsIter += 1
 
-        return w, h
+        return fromrdd(w), h
