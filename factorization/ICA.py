@@ -7,7 +7,7 @@ class ICA(object):
     Algorithm for independent component analysis
     """
 
-    def __init__(self, k, kPCA=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=None):
+    def __init__(self, k=3, kPCA=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=None):
         self.k = k
         self.kPCA = kPCA
         self.svdMethod = svdMethod

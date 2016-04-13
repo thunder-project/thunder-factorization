@@ -8,11 +8,10 @@ class NMF(object):
     Algorithm for non-negative matrix factorization
     """
 
-    def __init__(self, k=5, method='als', maxIter=20, tol=0.001, seed=None):
+    def __init__(self, k=5, maxIter=20, tol=0.001, seed=None):
 
         # initialize input variables
         self.k = int(k)
-        self.method = method
         self.maxIter = maxIter
         self.tol = tol
         self.seed = seed
@@ -48,7 +47,7 @@ class NMF(object):
 
         # a helper function to take the Frobenius norm of two zippable RDDs
         def rddFrobeniusNorm(A, B):
-            return sqrt(A.zip(B).map(lambda ((keyA, x), (keyB, y)): sum((x - y) ** 2)).reduce(add))
+            return sqrt(A.zip(B).map(lambda kvA, kvB: sum((kvA[1]-kvB[1]) ** 2)).reduce(add))
 
         # input checking
         k = self.k
@@ -91,7 +90,7 @@ class NMF(object):
             pinvW = w.mapValues(lambda x: dot(invGramianW, x))
 
             # update H using least squares row-wise with inv(W' * W) * W * R (same as pinv(W) * R)
-            h = pinvW.values().zip(mat.values()).map(lambda (x, y): outer(x, y)).reduce(add)
+            h = pinvW.values().zip(mat.values()).map(lambda v: outer(v[0], v[1])).reduce(add)
 
             # clip negative values of H
             # noinspection PyUnresolvedReferences
