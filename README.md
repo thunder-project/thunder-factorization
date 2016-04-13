@@ -23,7 +23,7 @@ X = make_low_rank_matrix(n_samples=100, n_features=100, effective_rank=5)
 Use PCA to recover the low-rank structure
 ```python
 from factorization import PCA
-alg = PCA()
+alg = PCA(k=5)
 W, T = alg.fit(X)
 ```
 ## usage
@@ -34,52 +34,81 @@ All algorithms have a `fit` method with returns the components of the factorizat
 
 ####`fit(X)`
 Fits the model to a data matrix
-- `X`: data matrix, in the form of an `ndarray`, `BoltArray`, or Thunder `Series`, dimensions `samples x features`
+- `X`: data matrix, in the form of an `ndarray`, `BoltArray`, or Thunder `Series`, dimensions `ncols x nrows`
 - returns multiple arrays representing the factors
 
 Constructors allow for customization of the algorithm.
 
-#### `W, S, A = ICA(args).fit(X)`
-Unmixes statistically independent components: `S = XW`.
+#### `W, S, A = ICA(k=3, kPCA=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=None).fit(X)`
+Unmixes statistically independent sources: `S = XW^T` (unmixing) or `X = S * A^T` (mixing).
 
 Parameters to constructor:
 - `k`: number of sources
+- `maxIter`: maximum number of iterations
+- `tol`: tolerance for stopping iterations
+- `seed`: seed for random number generator that initializes algorith.
+
+`spark` mode only:
+- `kPCA`: number of principal components used for initial dimensionality reduction,
+   default is no dimensionality reduction.
+- `svdMethod`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`; see
+   SVD documentation for details.
 
 Return values:
-- `W`: demixing matrix, dimensions `features x components`
-- `S`: sources, dimensions `samples x components`
-- `A`: mixing matrix (inverse of `W`), dimensions `components x features`
+- `W`: demixing matrix, dimensions `k x ncols`
+- `S`: sources, dimensions `nrows x k`
+- `A`: mixing matrix (inverse of `W`), dimensions `ncols x k`
 
 
-#### `W, H = NMF(args).fit(X)`
-Estimates each series as a linear combination of non-negative components: `X = HW`.
+#### `W, H = NMF(k=5, maxIter=20, tol=0.001, seed=None).fit(X)`
+Factors a non-negative matrix as the product of two small non-negative matrices: `X = H * W`.
 
 Parameters to constructor:
 - `k`: number of components
+- `maxIter`: maximum number of iterations
+- `tol`: tolerance for stopping iterations
+- `seed`: seed for random number generator that initializes algorithm.
 
 Return values from `fit`:
-- `W`: weights, dimensions `components x features`
-- `H`: components, dimensions `samples x components`
+- `H`: components, dimensions `nrows x k`
+- `W`: weights, dimensions `k x ncols`
 
 
-#### `W, T = PCA(args).fit(X)`
+#### `T, W = PCA(k=3, svdMethod='auto', maxIter=20, tol=0.00001, seed=None).fit(X)`
 Performs dimensionality reduction by finding an ordered set of components formed by an orthogonal projection
-that successively explain the maximum amount of remaining variance: `T = XW`.
+that successively explain the maximum amount of remaining variance: `T = X * W^T`.
 
 Parameters to constructor:
 - `k`: number of components
+- `maxIter`: maximum number of iterations
+- `tol`: tolerance for stopping iterations
+- `seed`: seed for random number generator that initializes algorithm.
+
+`spark` mode only:
+- `svdMethod`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`; see
+   SVD documentation for details.
 
 Return values from `fit`
-- `W`: weights, dimensions `components x features`
-- `H`: components, dimensions `samples x components`
+- `T`: components, dimensions `nrows x k`
+- `W`: weights, dimensions `k x ncols`
 
-#### `U, S, V = SVD(args).fit(X)`
+
+#### `U, S, V = SVD(k=3, method="auto", maxIter=20, tol=0.00001, seed=None).fit(X)`
 Generalization of the eigen-decomposition to non-square matrices: `X = U * diag(S) * V^T`.
 
 Parameters to constructor:
 - `k`: number of components
+- `maxIter`: maximum number of iterations
+- `tol`: tolerance for stopping iterations
+- `seed`: seed for random number generator that initializes algorithm.
+
+`spark` mode only:
+- `svdMethod`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`;
+      * `direct`: explicit computation based eigenvalue decomposition of the covariance matrix.
+      * `em`: approximate iterative method based on expectation-maximization algorithm.
+      * `auto`: uses `direct` for `ncols` < 750, otherwise uses `em`.
 
 Return values from `fit`:
-- `U`: left singular vectors, dimensions `samples x components`
-- `S`: singular values, dimensions `1 x components`
-- `V`: right singular vectors, dimensions `components x features`
+- `U`: left singular vectors, dimensions `nrows x k`
+- `S`: singular values, dimensions `k`
+- `V`: right singular vectors, dimensions `ncols x k`

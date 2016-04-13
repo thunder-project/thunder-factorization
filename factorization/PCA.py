@@ -22,4 +22,4 @@ class PCA(object):
         svd = SVD(k=self.k, method=self.svdMethod, maxIter=self.maxIter, tol=self.tol, seed=self.seed)
         u, s, v = svd.fit(X)
 
-        return v.T, u.times(diag(s))
+        return u.times(diag(s)), v.T
