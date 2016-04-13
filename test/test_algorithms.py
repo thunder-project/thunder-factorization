@@ -81,8 +81,8 @@ def test_pca(eng):
     x1 = fromarray(x)
     x2 = fromarray(x, engine=eng)
 
-    w1, t1 = PCA(k=2, seed=0).fit(x1)
-    w2, t2 = PCA(k=2, seed=0).fit(x2)
+    t1, w1 = PCA(k=2, seed=0).fit(x1)
+    t2, w2  = PCA(k=2, seed=0).fit(x2)
 
     assert allclose_sign(w1.T, w2.T)
     assert allclose_sign(t1.toarray(), t2.toarray())
