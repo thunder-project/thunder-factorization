@@ -7,7 +7,7 @@
 
 Many common factorization algorithms do not have standard parallelized implementations in the Python ecosystem. This package provides distributed implementations of `PCA`, `ICA`, `NMF`, and others that target the distributed computing engine [`spark`](https://github.com/apache/spark), as well as wrapping local implementations from [`scikit-learn`](https://github.com/scikit-learn/scikit-learn) with an identical API.
 
-The package includes a collection of `algorithms` that can be `fit` to data, all of which return matrices with the results of the factorization. Compatible with Python 2.7+ and 3.4+. Built on [`numpy`](https://github.com/numpy/numpy), [`scipy`](https://github.com/scipy/scipy), and [`scikit-learn`](https://github.com/scikit-learn/scikit-learn). Works well alongside [`thunder`](https://github.com/thunder-project/thunder) and supprts parallelization via [`spark`](https://github.com/apache/spark), but can be used as a standalone package on local [`numpy`](https://github.com/numpy/numpy) arrays.
+The package includes a collection of `algorithms` that can be `fit` to data, all of which return matrices with the results of the factorization. Compatible with Python 2.7+ and 3.4+. Built on [`numpy`](https://github.com/numpy/numpy), [`scipy`](https://github.com/scipy/scipy), and [`scikit-learn`](https://github.com/scikit-learn/scikit-learn). Works well alongside [`thunder`](https://github.com/thunder-project/thunder) and supprts parallelization via [`spark`](https://github.com/apache/spark), but can also be used on local [`numpy`](https://github.com/numpy/numpy) arrays.
 
 ## installation
 ```
