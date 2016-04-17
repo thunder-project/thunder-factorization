@@ -1,12 +1,13 @@
 # thunder-factorization
-Machine learning algorithms for factorization of spatio-temporal series. Includes a collection of `algorithms`
-that can be `fit` to data, all of which return a `model` with the results of the factorization. Compatible with
-Python 2.7+ and 3.4+. Works well alongside `thunder` for parallelization, but can be used as a standalone
-module on local arrays.
 
-Many popular factorization algorithms do not yet have a standard distributed implementation in the Python
-ecosystem. This package provides such implementations for a handful of algorithms as well as wrapping
-existing local implementations from `scikit-learn`.
+[![Latest Version](https://img.shields.io/pypi/v/thunder-factorization.svg?style=flat-square)](https://pypi.python.org/pypi/thunder-factorization)
+[![Build Status](https://img.shields.io/travis/thunder-project/thunder-factorization/master.svg?style=flat-square)](https://travis-ci.org/thunder-project/thunder-factorization) 
+
+> algorithms for large-scale matrix factorization
+
+Many common factorization algorithms do not have standard parallelized implementations in the Python ecosystem. This package provides distributed implementations of `PCA`, `ICA`, `NMF`, and others targeting the distributed computing engine [`spark`](https://github.com/apache/spark), as well as wrapping local implementations from [`scikit-learn`](https://github.com/scikit-learn/scikit-learn), with an identical API.
+
+The package includes a collection of `algorithms` that can be `fit` to data, all of which return matrices with the results of the factorization. Compatible with Python 2.7+ and 3.4+. Built on [`numpy`](https://github.com/numpy/numpy), [`scipy`](https://github.com/scipy/scipy), and [`scikit-learn`](https://github.com/scikit-learn/scikit-learn). Works well alongside [`thunder`](https://github.com/thunder-project/thunder) and supprts parallelization via [`spark`](https://github.com/apache/spark), but can be used as a standalone package on local [`numpy`](https://github.com/numpy/numpy) arrays.
 
 ## installation
 ```
@@ -14,32 +15,38 @@ pip install thunder-factorization
 ```
 
 ## example
-Create a high-dimensional dataset with low-rank structure
+
+Here's an example computing PCA
+
 ```python
+# create high-dimensional low-rank matrix
+
 from sklearn.datasets import make_low_rank_matrix
 X = make_low_rank_matrix(n_samples=100, n_features=100, effective_rank=5)
-# X.shape returns (200, 100)
-```
-Use PCA to recover the low-rank structure
-```python
+
+# use PCA to recover low-rank structure
+
 from factorization import PCA
-alg = PCA(k=5)
-W, T = alg.fit(X)
+algorithm = PCA(k=5)
+W, T = algorithm.fit(X)
 ```
-## usage
 
 ## api
 
 All algorithms have a `fit` method with returns the components of the factorization
 
-####`fit(X)`
+#### `fit(X)`
+
 Fits the model to a data matrix
 - `X`: data matrix, in the form of an `ndarray`, `BoltArray`, or Thunder `Series`, dimensions `ncols x nrows`
 - returns multiple arrays representing the factors
 
-Constructors allow for customization of the algorithm.
+## algorithms
+
+Here are all the available algorithms with their options.
 
 #### `W, S, A = ICA(k=3, kPCA=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=None).fit(X)`
+
 Unmixes statistically independent sources: `S = XW^T` (unmixing) or `X = S * A^T` (mixing).
 
 Parameters to constructor:
@@ -59,8 +66,8 @@ Return values:
 - `S`: sources, dimensions `nrows x k`
 - `A`: mixing matrix (inverse of `W`), dimensions `ncols x k`
 
-
 #### `W, H = NMF(k=5, maxIter=20, tol=0.001, seed=None).fit(X)`
+
 Factors a non-negative matrix as the product of two small non-negative matrices: `X = H * W`.
 
 Parameters to constructor:
@@ -73,8 +80,8 @@ Return values from `fit`:
 - `H`: components, dimensions `nrows x k`
 - `W`: weights, dimensions `k x ncols`
 
-
 #### `T, W = PCA(k=3, svdMethod='auto', maxIter=20, tol=0.00001, seed=None).fit(X)`
+
 Performs dimensionality reduction by finding an ordered set of components formed by an orthogonal projection
 that successively explain the maximum amount of remaining variance: `T = X * W^T`.
 
