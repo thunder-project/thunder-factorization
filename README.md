@@ -38,8 +38,8 @@ All algorithms have a `fit` method with returns the components of the factorizat
 #### `fit(X)`
 
 Fits the algorithm to a data matrix
-- `X`: data matrix, in the form of an [`numpy`] `ndarray`, a [`bolt`] `array`, or a [`thunder`] Thunder `Series`, dimensions `ncols x nrows`
-- returns multiple arrays representing the factors
+- `X`: data matrix, in the form of an [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or a [`thunder`](https://github.com/thunder-project/thunder) `series`, with dimensions `ncols x nrows`
+- returns multiple arrays representing the factors, in the same form as the input
 
 ## algorithms
 
