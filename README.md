@@ -37,8 +37,8 @@ All algorithms have a `fit` method with returns the components of the factorizat
 
 #### `fit(X)`
 
-Fits the model to a data matrix
-- `X`: data matrix, in the form of an `ndarray`, `BoltArray`, or Thunder `Series`, dimensions `ncols x nrows`
+Fits the algorithm to a data matrix
+- `X`: data matrix, in the form of an [`numpy`] `ndarray`, a [`bolt`] `array`, or a [`thunder`] Thunder `Series`, dimensions `ncols x nrows`
 - returns multiple arrays representing the factors
 
 ## algorithms
@@ -119,3 +119,17 @@ Return values from `fit`:
 - `U`: left singular vectors, dimensions `nrows x k`
 - `S`: singular values, dimensions `k`
 - `V`: right singular vectors, dimensions `ncols x k`
+
+## tests
+
+Run tests with 
+
+```bash
+py.test
+```
+
+Tests run locally with [`numpy`](https://github.com/numpy/numpy) by default, but the same tests can be run against a local [`spark`](https://github.com/apache/spark) installation using
+
+```bash
+py.test --engine=spark
+```
