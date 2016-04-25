@@ -8,11 +8,11 @@ class NMF(object):
     Algorithm for non-negative matrix factorization
     """
 
-    def __init__(self, k=5, maxIter=20, tol=0.001, seed=None):
+    def __init__(self, k=5, max_iter=20, tol=0.001, seed=None):
 
         # initialize input variables
         self.k = int(k)
-        self.maxIter = maxIter
+        self.max_iter = max_iter
         self.tol = tol
         self.seed = seed
 
@@ -32,7 +32,7 @@ class NMF(object):
 
         random.seed(self.seed)
 
-        nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.maxIter, random_state=self.seed)
+        nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.max_iter, random_state=self.seed)
         h = nmf.fit_transform(data.toarray())
 
         return fromarray(h), nmf.components_
@@ -56,8 +56,8 @@ class NMF(object):
 
         # initialize NMF and begin als algorithm
         m = mat.values().first().size
-        alsIter = 0
-        hConvCurr = 100
+        als_iter = 0
+        h_conv_curr = 100
 
         random.seed(self.seed)
         h = random.rand(k, m)
@@ -65,17 +65,17 @@ class NMF(object):
 
         # goal is to solve R = WH subject to all entries of W,H >= 0
         # by iteratively updating W and H with least squares and clipping negative values
-        while (alsIter < self.maxIter) and (hConvCurr > self.tol):
+        while (als_iter < self.max_iter) and (h_conv_curr > self.tol):
             # update values on iteration
-            hOld = h
-            wOld = w
+            h_old = h
+            w_old = w
 
             # precompute pinv(H) = inv(H' x H) * H' (easy here because h is an np array)
             # the rows of H should be a basis of dimension k, so in principle we could just compute directly
-            pinvH = pinv(h)
+            p_inv_h = pinv(h)
 
             # update W using least squares row-wise with R * pinv(H); then clip negative values to 0
-            w = mat.mapValues(lambda x: dot(x, pinvH))
+            w = mat.mapValues(lambda x: dot(x, p_inv_h))
 
             # clip negative values of W
             # noinspection PyUnresolvedReferences
@@ -83,14 +83,14 @@ class NMF(object):
 
             # precompute inv(W' * W) to get inv_gramian_w, a np array
             # We have chosen k to be small, i.e., rank(W) = k, so W'*W is invertible
-            gramianW = w.values().map(lambda x: outer(x, x)).reduce(add)
-            invGramianW = inv(gramianW)
+            gramian_w = w.values().map(lambda x: outer(x, x)).reduce(add)
+            inv_gramian_w = inv(gramian_w)
 
             # pseudoinverse of W is inv(W' * W) * W' = inv_gramian_w * w
-            pinvW = w.mapValues(lambda x: dot(invGramianW, x))
+            p_inv_w = w.mapValues(lambda x: dot(inv_gramian_w, x))
 
             # update H using least squares row-wise with inv(W' * W) * W * R (same as pinv(W) * R)
-            h = pinvW.values().zip(mat.values()).map(lambda v: outer(v[0], v[1])).reduce(add)
+            h = p_inv_w.values().zip(mat.values()).map(lambda v: outer(v[0], v[1])).reduce(add)
 
             # clip negative values of H
             # noinspection PyUnresolvedReferences
@@ -101,9 +101,9 @@ class NMF(object):
             h = dot(diag(1 / maximum(apply_along_axis(norm, 1, h), 0.001)), h)
 
             # estimate convergence
-            hConvCurr = norm(h-hOld)
+            h_conv_curr = norm(h-h_old)
 
             # increment count
-            alsIter += 1
+            als_iter += 1
 
         return fromrdd(w), h

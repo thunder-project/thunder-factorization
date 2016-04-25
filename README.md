@@ -39,19 +39,19 @@ Fits the model to a data matrix
 
 Constructors allow for customization of the algorithm.
 
-#### `W, S, A = ICA(k=3, kPCA=None, svdMethod='auto', maxIter=10, tol=0.000001, seed=None).fit(X)`
+#### `W, S, A = ICA(k=3, k_pca=None, svd_method='auto', max_iter=10, tol=0.000001, seed=None).fit(X)`
 Unmixes statistically independent sources: `S = XW^T` (unmixing) or `X = S * A^T` (mixing).
 
 Parameters to constructor:
 - `k`: number of sources
-- `maxIter`: maximum number of iterations
+- `max_iter`: maximum number of iterations
 - `tol`: tolerance for stopping iterations
 - `seed`: seed for random number generator that initializes algorith.
 
 `spark` mode only:
-- `kPCA`: number of principal components used for initial dimensionality reduction,
+- `k_pca`: number of principal components used for initial dimensionality reduction,
    default is no dimensionality reduction.
-- `svdMethod`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`; see
+- `svd_method`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`; see
    SVD documentation for details.
 
 Return values:
@@ -60,12 +60,12 @@ Return values:
 - `A`: mixing matrix (inverse of `W`), dimensions `ncols x k`
 
 
-#### `W, H = NMF(k=5, maxIter=20, tol=0.001, seed=None).fit(X)`
+#### `W, H = NMF(k=5, max_iter=20, tol=0.001, seed=None).fit(X)`
 Factors a non-negative matrix as the product of two small non-negative matrices: `X = H * W`.
 
 Parameters to constructor:
 - `k`: number of components
-- `maxIter`: maximum number of iterations
+- `max_iter`: maximum number of iterations
 - `tol`: tolerance for stopping iterations
 - `seed`: seed for random number generator that initializes algorithm.
 
@@ -74,18 +74,18 @@ Return values from `fit`:
 - `W`: weights, dimensions `k x ncols`
 
 
-#### `T, W = PCA(k=3, svdMethod='auto', maxIter=20, tol=0.00001, seed=None).fit(X)`
+#### `T, W = PCA(k=3, svd_method='auto', max_iter=20, tol=0.00001, seed=None).fit(X)`
 Performs dimensionality reduction by finding an ordered set of components formed by an orthogonal projection
 that successively explain the maximum amount of remaining variance: `T = X * W^T`.
 
 Parameters to constructor:
 - `k`: number of components
-- `maxIter`: maximum number of iterations
+- `max_iter`: maximum number of iterations
 - `tol`: tolerance for stopping iterations
 - `seed`: seed for random number generator that initializes algorithm.
 
 `spark` mode only:
-- `svdMethod`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`; see
+- `svd_method`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`; see
    SVD documentation for details.
 
 Return values from `fit`
@@ -93,17 +93,17 @@ Return values from `fit`
 - `W`: weights, dimensions `k x ncols`
 
 
-#### `U, S, V = SVD(k=3, method="auto", maxIter=20, tol=0.00001, seed=None).fit(X)`
+#### `U, S, V = SVD(k=3, method="auto", max_iter=20, tol=0.00001, seed=None).fit(X)`
 Generalization of the eigen-decomposition to non-square matrices: `X = U * diag(S) * V^T`.
 
 Parameters to constructor:
 - `k`: number of components
-- `maxIter`: maximum number of iterations
+- `max_iter`: maximum number of iterations
 - `tol`: tolerance for stopping iterations
 - `seed`: seed for random number generator that initializes algorithm.
 
 `spark` mode only:
-- `svdMethod`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`;
+- `svd_method`: method for computing the SVD; `"auto"`, `"direct"`, or `"em"`;
       * `direct`: explicit computation based eigenvalue decomposition of the covariance matrix.
       * `em`: approximate iterative method based on expectation-maximization algorithm.
       * `auto`: uses `direct` for `ncols` < 750, otherwise uses `em`.

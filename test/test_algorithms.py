@@ -69,7 +69,7 @@ def test_svd(eng):
     assert allclose(s1, s2, atol=tol)
     assert allclose_sign(v1, v2, atol=tol)
 
-    u2, s2, v2 = SVD(k=2, seed=0, maxIter=200, method="em").fit(x2)
+    u2, s2, v2 = SVD(k=2, seed=0, max_iter=200, method="em").fit(x2)
 
     assert allclose_sign(u1.toarray(), u2.toarray(), atol=tol)
     assert allclose(s1, s2, atol=tol)
@@ -102,7 +102,7 @@ def test_ica(eng):
         return (w.T*c).T, s.toarray()*c, a/c
 
     w1, s1, a1 = normalize_ICA(*(ICA(k=2, seed=0).fit(x1)))
-    w2, s2, a2 = normalize_ICA(*(ICA(k=2, seed=0, kPCA=2).fit(x2)))
+    w2, s2, a2 = normalize_ICA(*(ICA(k=2, seed=0, k_pca=2).fit(x2)))
 
     tol=1e-1
     assert allclose_sign_permute(w1.T, w2.T, atol=tol)

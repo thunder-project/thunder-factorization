@@ -6,10 +6,10 @@ class PCA(object):
     Algorithm for principle component analysis
     """
 
-    def __init__(self, k=3, svdMethod='auto', maxIter=20, tol=0.00001, seed=None):
+    def __init__(self, k=3, svd_method='auto', max_iter=20, tol=0.00001, seed=None):
         self.k = k
-        self.svdMethod = svdMethod
-        self.maxIter = maxIter
+        self.svd_method = svd_method
+        self.max_iter = max_iter
         self.tol = tol
         self.seed = seed
 
@@ -19,7 +19,7 @@ class PCA(object):
 
         X = toseries(X).center(1)
 
-        svd = SVD(k=self.k, method=self.svdMethod, maxIter=self.maxIter, tol=self.tol, seed=self.seed)
+        svd = SVD(k=self.k, method=self.svd_method, max_iter=self.max_iter, tol=self.tol, seed=self.seed)
         u, s, v = svd.fit(X)
 
         return u.times(diag(s)), v.T

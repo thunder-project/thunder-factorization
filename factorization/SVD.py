@@ -7,10 +7,10 @@ class SVD(object):
     Algorithm for singular value decomposition
     """
 
-    def __init__(self, k=3, method="auto", maxIter=20, tol=0.00001, seed=None):
+    def __init__(self, k=3, method="auto", max_iter=20, tol=0.00001, seed=None):
         self.k = k
         self.method = method
-        self.maxIter = maxIter
+        self.max_iter = max_iter
         self.tol = tol
         self.seed = seed
 
@@ -27,7 +27,7 @@ class SVD(object):
 
         from sklearn.utils.extmath import randomized_svd
 
-        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.maxIter, random_state=self.seed)
+        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.max_iter, random_state=self.seed)
 
         return Series(U), S, VT.T
 
@@ -83,39 +83,39 @@ class SVD(object):
                     return val1
 
             # define an accumulator function
-            global runSum
+            global run_sum
 
-            def outerSumOther(x, y):
-                global runSum
-                runSum += outer(x, dot(x, y))
+            def outer_sum_other(x, y):
+                global run_sum
+                run_sum += outer(x, dot(x, y))
 
             # iterative update subspace using expectation maximization
             # e-step: x = (c'c)^-1 c' y
             # m-step: c = y x' (xx')^-1
-            while (niter < self.maxIter) & (error > self.tol):
+            while (niter < self.max_iter) & (error > self.tol):
 
-                cOld = c
+                c_old = c
 
                 # pre compute (c'c)^-1 c'
-                cInv = dot(c.T, inv(dot(c, c.T)))
+                c_inv = dot(c.T, inv(dot(c, c.T)))
 
                 # compute (xx')^-1 through a map reduce
-                xx = mat.times(cInv).gramian().toarray()
-                xxInv = inv(xx)
+                xx = mat.times(c_inv).gramian().toarray()
+                xx_inv = inv(xx)
 
                 # pre compute (c'c)^-1 c' (xx')^-1
-                preMult2 = mat.tordd().context.broadcast(dot(cInv, xxInv))
+                pre_mult_2 = mat.tordd().context.broadcast(dot(c_inv, xx_inv))
 
                 # compute the new c using an accumulator
-                # direct approach: c = mat.rows().map(lambda x: outer(x, dot(x, premult2.value))).sum()
-                runSum = mat.tordd().context.accumulator(zeros((ncols, self.k)), MatrixAccumulatorParam())
-                mat.tordd().values().foreach(lambda x: outerSumOther(x, preMult2.value))
-                c = runSum.value
+                # direct approach: c = mat.rows().map(lambda x: outer(x, dot(x, pre_mult_2.value))).sum()
+                run_sum = mat.tordd().context.accumulator(zeros((ncols, self.k)), MatrixAccumulatorParam())
+                mat.tordd().values().foreach(lambda x: outer_sum_other(x, pre_mult_2.value))
+                c = run_sum.value
 
                 # transpose result
                 c = c.T
 
-                error = sum(sum((c - cOld) ** 2))
+                error = sum(sum((c - c_old) ** 2))
                 niter += 1
 
             # project data into subspace spanned by columns of c
