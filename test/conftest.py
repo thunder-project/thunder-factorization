@@ -2,10 +2,13 @@ import pytest
 import station
 
 def pytest_addoption(parser):
-    parser.addoption("--engine", action="store", default="spark",
-                     help="engine to run tests with")
+    parser.addoption("--engine", action="store", default="local", help="engine to use")
 
 @pytest.fixture(scope='module')
 def eng(request):
-    station.start(spark=True)
-    return station.engine()
+    engine = request.config.getoption("--engine")
+    if engine == 'local':
+        return None
+    if engine == 'spark':
+        station.start(spark=True)
+        return station.engine()
