@@ -1,8 +1,6 @@
-from numpy import random
-from thunder.series import Series
-from .utils import toseries
+from .base import Algorithm
 
-class ICA(object):
+class ICA(Algorithm):
     """
     Algorithm for independent component analysis
     """
@@ -15,29 +13,19 @@ class ICA(object):
         self.tol = tol
         self.seed = seed
 
-    def fit(self, X):
-        X = toseries(X)
-
-        if X.mode == "local":
-            return self._fit_local(X)
-        if X.mode == "spark":
-            return self._fit_spark(X)
-
 
     def _fit_local(self, data):
 
         from sklearn.decomposition import FastICA
-
         model = FastICA(n_components=self.k, fun="cube", max_iter=self.max_iter, tol=self.tol, random_state=self.seed)
         signals = model.fit_transform(data.toarray())
-
-        return model.components_, Series(signals), model.mixing_
+        return model.components_, signals, model.mixing_
 
 
     def _fit_spark(self, data):
 
         from .SVD import SVD
-        from numpy import sqrt, zeros, real, dot, outer, diag, transpose
+        from numpy import sqrt, zeros, real, dot, outer, diag, transpose, random
         from scipy.linalg import sqrtm, inv, orth
 
         nrows = data.shape[0]
@@ -56,6 +44,7 @@ class ICA(object):
 
         # reduce dimensionality
         u, s, v = SVD(k=self.k_pca, method=self.svd_method, seed=self.seed).fit(data)
+        s, v = s.toarray(), v.toarray()
 
         # whiten data
         wht_mat = real(dot(inv(diag(s/sqrt(nrows))), v.T))

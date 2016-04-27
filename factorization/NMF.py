@@ -1,9 +1,8 @@
 from numpy import random
-from thunder.series import fromarray, fromrdd
-from thunder.series.readers import fromrdd
-from .utils import toseries
 
-class NMF(object):
+from .base import Algorithm
+
+class NMF(Algorithm):
     """
     Algorithm for non-negative matrix factorization
     """
@@ -17,15 +16,6 @@ class NMF(object):
         self.seed = seed
 
 
-    def fit(self, X):
-        X = toseries(X)
-
-        if X.mode == "local":
-            return self._fit_local(X)
-        if X.mode == "spark":
-            return self._fit_spark(X)
-
-
     def _fit_local(self, data):
 
         from sklearn.decomposition import NMF
@@ -35,13 +25,14 @@ class NMF(object):
         nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.max_iter, random_state=self.seed)
         h = nmf.fit_transform(data.toarray())
 
-        return fromarray(h), nmf.components_
+        return h, nmf.components_
 
 
     def _fit_spark(self, data):
 
         from numpy import add, any, diag, dot, inf, maximum, outer, sqrt, apply_along_axis
         from numpy.linalg import inv, norm, pinv
+        from thunder.series import fromrdd
 
         mat = data.tordd()
 
@@ -106,4 +97,6 @@ class NMF(object):
             # increment count
             als_iter += 1
 
-        return fromrdd(w), h
+        shape = (data.shape[0], self.k)
+        w = fromrdd(w, nrecords=data.shape[0], shape=shape, dtype=h.dtype)
+        return w, h

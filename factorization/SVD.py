@@ -1,8 +1,6 @@
-from numpy import random
-from thunder.series import Series
-from .utils import toseries
+from .base import Algorithm
 
-class SVD(object):
+class SVD(Algorithm):
     """
     Algorithm for singular value decomposition
     """
@@ -14,26 +12,17 @@ class SVD(object):
         self.tol = tol
         self.seed = seed
 
-    def fit(self, X):
-
-        X = toseries(X)
-
-        if X.mode == "local":
-            return self._fit_local(X)
-        else:
-            return self._fit_spark(X)
 
     def _fit_local(self, mat):
 
         from sklearn.utils.extmath import randomized_svd
-
         U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.max_iter, random_state=self.seed)
+        return U, S, VT.T
 
-        return Series(U), S, VT.T
 
     def _fit_spark(self, mat):
 
-        from numpy import argsort, dot, outer, sqrt, sum, zeros
+        from numpy import argsort, dot, outer, sqrt, sum, zeros, random
         from scipy.linalg import inv, orth
         from numpy.linalg import eigh
 
