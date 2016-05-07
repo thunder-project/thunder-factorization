@@ -9,7 +9,7 @@ required = open('requirements.txt').read().split('\n')
 setup(
     name='factorization',
     version=version,
-    description='local and distributed factorization algorithms in python',
+    description='algorithms for scalable matrix factorization',
     author='jwittenbach',
     author_email='the.freeman.lab@gmail.com',
     url='https://github.com/thunder-project/thunder-factorization',
