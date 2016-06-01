@@ -13,7 +13,7 @@ setup(
     author='jwittenbach',
     author_email='the.freeman.lab@gmail.com',
     url='https://github.com/thunder-project/thunder-factorization',
-    packages=['factorization'],
+    packages=['factorization', 'factorization.algorithms'],
     install_requires=required,
     long_description='See ' + 'https://github.com/thunder-project/thunder-factorization',
     license='MIT'

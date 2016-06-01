@@ -1,4 +1,4 @@
-from .base import Algorithm
+from ..base import Algorithm
 
 class PCA(Algorithm):
     """
@@ -18,7 +18,7 @@ class PCA(Algorithm):
 
     def _fit_spark(self, X):
         from .SVD import SVD
-        from .utils import toseries
+        from ..utils import toseries
         from numpy import diag, dot, ndarray
         from thunder.series import fromarray
 

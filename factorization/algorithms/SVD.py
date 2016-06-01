@@ -1,4 +1,4 @@
-from .base import Algorithm
+from ..base import Algorithm
 
 class SVD(Algorithm):
     """

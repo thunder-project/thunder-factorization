@@ -1,6 +1,6 @@
 from numpy import random
 
-from .base import Algorithm
+from ..base import Algorithm
 
 class NMF(Algorithm):
     """

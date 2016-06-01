@@ -1,6 +1,6 @@
 __version__ = "1.0.0"
 
-from .ICA import ICA
-from .PCA import PCA
-from .NMF import NMF
-from .SVD import SVD
+from .algorithms.ICA import ICA
+from .algorithms.PCA import PCA
+from .algorithms.NMF import NMF
+from .algorithms.SVD import SVD
