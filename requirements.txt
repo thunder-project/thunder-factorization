@@ -1,4 +1,4 @@
 numpy
 scipy
 scikit-learn
-thunder-python >= 1.0.0
+git+git://github.com/thunder-project/thunder.git
