@@ -23,7 +23,7 @@ class NMF(Algorithm):
         random.seed(self.seed)
 
         nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.max_iter, random_state=self.seed)
-        h = nmf.fit_transform(data.toarray())
+        h = nmf.fit_transform(data)
 
         return h, nmf.components_
 
@@ -99,4 +99,4 @@ class NMF(Algorithm):
 
         shape = (data.shape[0], self.k)
         w = fromrdd(w, nrecords=data.shape[0], shape=shape, dtype=h.dtype)
-        return w, h
+        return w.values, h

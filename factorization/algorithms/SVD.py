@@ -16,8 +16,8 @@ class SVD(Algorithm):
     def _fit_local(self, mat):
 
         from sklearn.utils.extmath import randomized_svd
-        U, S, VT = randomized_svd(mat.toarray(), n_components=self.k, n_iter=self.max_iter, random_state=self.seed)
-        return U, S, VT.T
+        U, S, VT = randomized_svd(mat, n_components=self.k, n_iter=self.max_iter, random_state=self.seed)
+        return U, S, VT
 
 
     def _fit_spark(self, mat):
@@ -25,6 +25,9 @@ class SVD(Algorithm):
         from numpy import argsort, dot, outer, sqrt, sum, zeros, random
         from scipy.linalg import inv, orth
         from numpy.linalg import eigh
+        from thunder.series import Series
+
+        mat = Series(mat)
 
         nrows = mat.shape[0]
         ncols = mat.shape[1]
@@ -117,4 +120,4 @@ class SVD(Algorithm):
             v = dot(eigv[:, inds[0:self.k]].T, c.T)
             u = mat.times(v.T / s)
 
-        return u, s, v.T
+        return u.values, s, v

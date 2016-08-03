@@ -65,19 +65,19 @@ def test_svd(eng):
     x1 = fromarray(x)
     x2 = fromarray(x, engine=eng)
 
-    u1, s1, v1 = to_array(SVD(k=2, seed=0).fit(x1))
-    u2, s2, v2 = to_array(SVD(k=2, seed=0, method="direct").fit(x2))
+    u1, s1, vT1 = to_array(SVD(k=2, seed=0).fit(x1))
+    u2, s2, vT2 = to_array(SVD(k=2, seed=0, method="direct").fit(x2))
 
     tol = 1e-2
     assert allclose_sign(u1, u2, atol=tol)
     assert allclose(s1, s2, atol=tol)
-    assert allclose_sign(v1, v2, atol=tol)
+    assert allclose_sign(vT1.T, vT2.T, atol=tol)
 
-    u2, s2, v2 = to_array(SVD(k=2, seed=0, max_iter=200, method="em").fit(x2))
+    u2, s2, vT2 = to_array(SVD(k=2, seed=0, max_iter=200, method="em").fit(x2))
 
     assert allclose_sign(u1, u2, atol=tol)
     assert allclose(s1, s2, atol=tol)
-    assert allclose_sign(v1, v2, atol=tol)
+    assert allclose_sign(vT1.T, vT2.T, atol=tol)
 
 
 def test_pca(eng):
@@ -85,10 +85,10 @@ def test_pca(eng):
     x1 = fromarray(x)
     x2 = fromarray(x, engine=eng)
 
-    t1, w1 = to_array(PCA(k=2, seed=0).fit(x1))
-    t2, w2  = to_array(PCA(k=2, seed=0).fit(x2))
+    t1, wT1 = to_array(PCA(k=2, seed=0).fit(x1))
+    t2, wT2  = to_array(PCA(k=2, seed=0).fit(x2))
 
-    assert allclose_sign(w1.T, w2.T)
+    assert allclose_sign(wT1, wT2)
     assert allclose_sign(t1, t2)
 
 
@@ -101,17 +101,17 @@ def test_ica(eng):
     x1 = fromarray(x)
     x2 = fromarray(x, engine=eng)
 
-    def normalize_ICA(w, s, a):
+    def normalize_ICA(s, aT):
+        a = aT.T
         c = a.sum(axis=0)
-        return (w.T*c).T, s*c, a/c
+        return s*c, (a/c).T
 
-    w1, s1, a1 = normalize_ICA(*to_array((ICA(k=2, seed=0).fit(x1))))
-    w2, s2, a2 = normalize_ICA(*to_array((ICA(k=2, seed=0, k_pca=2).fit(x2))))
+    s1, aT1 = normalize_ICA(*to_array((ICA(k=2, seed=0).fit(x1))))
+    s2, aT2 = normalize_ICA(*to_array((ICA(k=2, seed=0, k_pca=2).fit(x2))))
 
     tol=1e-1
-    assert allclose_sign_permute(w1.T, w2.T, atol=tol)
     assert allclose_sign_permute(s1, s2, atol=tol)
-    assert allclose_sign_permute(a1.T, a2.T, atol=tol)
+    assert allclose_sign_permute(aT1, aT2, atol=tol)
 
 
 def test_nmf(eng):

@@ -5,27 +5,38 @@ class Algorithm(object):
 
     def fit(self, X):
         from thunder.series import fromarray, Series
+        from thunder.images import Images
         from bolt.spark.array import BoltArraySpark
         from numpy import ndarray
 
+        # Handle different input types
         if isinstance(X, Series):
+            data = X.flatten().values
+
+        elif isinstance(X, Images):
+            data = X.map(lambda x: x.flatten())
+
+        elif isinstance(X, (BoltArraySpark, ndarray)):
+            if X.ndim != 2:
+                raise ValueError("Array to factor must be 2-dimensional")
             data = X
-        else:
-            data = fromarray(X)
 
-        if data.mode == "local":
-            results = self._fit_local(data)
+        # Factor
+        if isinstance(data, ndarray):
+            results = list(self._fit_local(data))
 
-        if data.mode == "spark":
-            results =  self._fit_spark(data)
+        if isinstance(data, BoltArraySpark):
+            results =  list(self._fit_spark(data))
 
-        results = list(results)
-        if isinstance(X, (Series, BoltArraySpark)):
-            for (i, r) in enumerate(results):
-                if isinstance(r, ndarray):
-                    results[i] = fromarray(r)
+        # Handle output types
+        if isinstance(X, Series):
+            res = results[0]
+            newshape = X.baseshape + (res.shape[-1], )
+            results[0] = Series(res).reshape(*newshape)
 
-        if isinstance(X, BoltArraySpark):
-            results = [r.values for r in results]
+        elif isinstance(X, Images):
+            res = results[-1]
+            newshape = (res.shape[0], ) + X.value_shape
+            results[-1] = Images(res).reshape(*newshape)
 
         return results
