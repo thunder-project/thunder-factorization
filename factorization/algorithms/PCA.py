@@ -13,7 +13,10 @@ class PCA(Algorithm):
         self.seed = seed
 
     def _fit_local(self, X):
-        t, w = self._fit_spark(X)
+        from sklearn.decomposition import PCA as skPCA
+        pca = skPCA(n_components=self.k)
+        t = pca.fit_transform(X)
+        w = pca.components_.T
         return t, w
 
     def _fit_spark(self, X):
@@ -21,7 +24,7 @@ class PCA(Algorithm):
         from numpy import diag, dot, ndarray
         from thunder.series import Series
 
-        X = Series(X).center(1)
+        X = Series(X).center(0)
 
         svd = SVD(k=self.k, method=self.svd_method, max_iter=self.max_iter, tol=self.tol, seed=self.seed)
         u, s, v = svd.fit(X)

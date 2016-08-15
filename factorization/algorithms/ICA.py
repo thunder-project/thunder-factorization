@@ -29,7 +29,7 @@ class ICA(Algorithm):
         from scipy.linalg import sqrtm, inv, orth
         from thunder.series import Series
 
-        data = Series(data)
+        data = Series(data).center(0)
         nrows = data.shape[0]
         ncols = data.shape[1]
 

@@ -7,7 +7,7 @@ class NMF(Algorithm):
     Algorithm for non-negative matrix factorization
     """
 
-    def __init__(self, k=5, max_iter=20, tol=0.001, seed=None):
+    def __init__(self, k=5, max_iter=None, tol=None, seed=None):
 
         # initialize input variables
         self.k = int(k)
@@ -15,17 +15,19 @@ class NMF(Algorithm):
         self.tol = tol
         self.seed = seed
 
-
     def _fit_local(self, data):
 
         from sklearn.decomposition import NMF
 
-        random.seed(self.seed)
+        if self.max_iter is None:
+            self.max_iter = 200
+        if self.tol is None:
+            self.tol = 0.0001
 
         nmf = NMF(n_components=self.k, tol=self.tol, max_iter=self.max_iter, random_state=self.seed)
-        h = nmf.fit_transform(data)
+        w = nmf.fit_transform(data)
 
-        return h, nmf.components_
+        return w, nmf.components_,
 
 
     def _fit_spark(self, data):
@@ -33,6 +35,11 @@ class NMF(Algorithm):
         from numpy import add, any, diag, dot, inf, maximum, outer, sqrt, apply_along_axis
         from numpy.linalg import inv, norm, pinv
         from thunder.series import fromrdd
+
+        if self.max_iter is None:
+            self.max_iter = 20
+        if self.tol is None:
+            self.tol = 0.001
 
         mat = data.tordd()
 
