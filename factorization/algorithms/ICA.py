@@ -16,7 +16,10 @@ class ICA(Algorithm):
 
     def _fit_local(self, data):
 
+
         from sklearn.decomposition import FastICA
+        from numpy import random
+        random.seed(self.seed)
         model = FastICA(n_components=self.k, fun="cube", max_iter=self.max_iter, tol=self.tol, random_state=self.seed)
         signals = model.fit_transform(data)
         return signals, model.mixing_.T
@@ -44,17 +47,17 @@ class ICA(Algorithm):
             raise Exception("number of principal comps " + str(self.k) +
                             " must be less than the data dimensionality " + str(ncols))
 
+        # seed the RNG
+        random.seed(self.seed)
+
         # reduce dimensionality
-        u, s, vT = SVD(k=self.k_pca, method=self.svd_method, seed=self.seed).fit(data)
+        u, s, vT = SVD(k=self.k_pca, method=self.svd_method).fit(data)
         u = Series(u)
 
         # whiten data
         wht_mat = real(dot(inv(diag(s/sqrt(nrows))), vT))
         unwht_mat = real(dot(vT.T, diag(s/sqrt(nrows))))
         wht = data.times(wht_mat.T)
-
-        # seed the RNG
-        random.seed(self.seed)
 
         # do multiple independent component extraction
         b = orth(random.randn(self.k_pca, self.k))
