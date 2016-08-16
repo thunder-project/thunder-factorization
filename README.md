@@ -114,6 +114,13 @@ Return values from `fit`:
 - `S` singular values, dimensions `k`
 - `V` right singular vectors, dimensions `k x ncols`
 
+## thunder objects
+Thunder `Images` and `Series` objects are the only objects with more than two dimensions that can be factored.
+* `Images`: each image will be flattened, creating a 2D matrix.
+* `Series`: keys will be flattened, creating a 2D matrix.
+
+After factoring, results over the flattened dimensions will be reshaped back to their original form.
+
 ## tests
 
 Run tests with
