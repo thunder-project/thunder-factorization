@@ -51,12 +51,12 @@ class ICA(Algorithm):
         random.seed(self.seed)
 
         # reduce dimensionality
-        u, s, vT = SVD(k=self.k_pca, method=self.svd_method).fit(data)
+        u, s, v = SVD(k=self.k_pca, method=self.svd_method).fit(data)
         u = Series(u)
 
         # whiten data
-        wht_mat = real(dot(inv(diag(s/sqrt(nrows))), vT))
-        unwht_mat = real(dot(vT.T, diag(s/sqrt(nrows))))
+        wht_mat = real(dot(inv(diag(s/sqrt(nrows))), v))
+        unwht_mat = real(dot(v.T, diag(s/sqrt(nrows))))
         wht = data.times(wht_mat.T)
 
         # do multiple independent component extraction

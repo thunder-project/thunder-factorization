@@ -16,8 +16,8 @@ class SVD(Algorithm):
     def _fit_local(self, mat):
 
         from sklearn.utils.extmath import randomized_svd
-        U, S, VT = randomized_svd(mat, n_components=self.k, n_iter=self.max_iter, random_state=self.seed)
-        return U, S, VT
+        U, S, V = randomized_svd(mat, n_components=self.k, n_iter=self.max_iter, random_state=self.seed)
+        return U, S, V
 
 
     def _fit_spark(self, mat):

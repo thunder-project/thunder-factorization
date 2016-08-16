@@ -57,20 +57,20 @@ def test_svd(eng):
     x = fromarray(x, engine=eng)
 
     from sklearn.utils.extmath import randomized_svd
-    u1, s1, vT1 = randomized_svd(x.toarray(), n_components=2,  random_state=0)
+    u1, s1, v1 = randomized_svd(x.toarray(), n_components=2,  random_state=0)
 
-    u2, s2, vT2 = SVD(k=2, method='direct').fit(x)
+    u2, s2, v2 = SVD(k=2, method='direct').fit(x)
     u2 = array(u2)
     assert allclose_sign(u1, u2)
     assert allclose(s1, s2)
-    assert allclose_sign(vT1.T, vT2.T)
+    assert allclose_sign(v1.T, v2.T)
 
-    u2, s2, vT2 = SVD(k=2, method='em', max_iter=100, seed=0).fit(x)
+    u2, s2, v2 = SVD(k=2, method='em', max_iter=100, seed=0).fit(x)
     u2 = u2.toarray()
     tol = 1e-1
     assert allclose_sign(u1, u2, atol=tol)
     assert allclose(s1, s2, atol=tol)
-    assert allclose_sign(vT1.T, vT2.T, atol=tol)
+    assert allclose_sign(v1.T, v2.T, atol=tol)
 
 def test_pca(eng):
     x = make_low_rank_matrix(n_samples=10, n_features=5, random_state=0)
@@ -79,17 +79,17 @@ def test_pca(eng):
     from sklearn.decomposition import PCA as skPCA
     pca = skPCA(n_components=2)
     t1 = pca.fit_transform(x.toarray())
-    wT1 = pca.components_.T
+    w1_T = pca.components_
 
-    t2, wT2 = PCA(k=2, svd_method='direct').fit(x)
+    t2, w2_T = PCA(k=2, svd_method='direct').fit(x)
     t2 = t2.toarray()
-    assert allclose_sign(wT1, wT2)
+    assert allclose_sign(w1_T.T, w2_T.T)
     assert allclose_sign(t1, t2)
 
-    t2, wT2 = PCA(k=2, svd_method='em', max_iter=100, seed=0).fit(x)
+    t2, w2_T = PCA(k=2, svd_method='em', max_iter=100, seed=0).fit(x)
     t2 = t2.toarray()
     tol = 1e-1
-    assert allclose_sign(wT1, wT2, atol=tol)
+    assert allclose_sign(w1_T.T, w2_T.T, atol=tol)
     assert allclose_sign(t1, t2, atol=tol)
 
 def test_ica(eng):
@@ -121,7 +121,7 @@ def test_ica(eng):
 
 def test_nmf(eng):
 
-    t = linspace(0, 10, 10)
+    t = linspace(0, 10, 100)
     s1 = 1 + absolute(sin(t))
     s2 = 1 + square(cos(2*t))
 
@@ -140,5 +140,5 @@ def test_nmf(eng):
     w2 = w2.toarray()
     xhat2 = dot(w2, h2)
 
-    tol=1e-2
+    tol=1e-1
     assert allclose(xhat1, xhat2, atol=tol)

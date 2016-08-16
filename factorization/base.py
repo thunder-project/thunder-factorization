@@ -14,7 +14,7 @@ class Algorithm(object):
             data = X.flatten().values
 
         elif isinstance(X, Images):
-            data = X.map(lambda x: x.flatten())
+            data = X.map(lambda x: x.flatten()).values
 
         elif isinstance(X, (BoltArraySpark, ndarray)):
             if X.ndim != 2:
@@ -35,8 +35,9 @@ class Algorithm(object):
             results[0] = Series(res).reshape(*newshape)
 
         elif isinstance(X, Images):
-            res = results[-1]
+            results[0] = Series(results[0])
+            res = results[1]
             newshape = (res.shape[0], ) + X.value_shape
-            results[-1] = Images(res).reshape(*newshape)
+            results[1] = res.reshape(*newshape)
 
         return results

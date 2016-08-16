@@ -16,8 +16,8 @@ class PCA(Algorithm):
         from sklearn.decomposition import PCA as skPCA
         pca = skPCA(n_components=self.k)
         t = pca.fit_transform(X)
-        w = pca.components_.T
-        return t, w
+        w_T = pca.components_
+        return t, w_T
 
     def _fit_spark(self, X):
         from .SVD import SVD
@@ -30,6 +30,6 @@ class PCA(Algorithm):
         u, s, v = svd.fit(X)
 
         t = u.times(diag(s))
-        w = v.T
+        w_T = v
 
-        return t.values, w
+        return t.values, w_T
