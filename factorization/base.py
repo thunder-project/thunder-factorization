@@ -9,7 +9,7 @@ class Algorithm(object):
         from bolt.spark.array import BoltArraySpark
         from numpy import ndarray
 
-        # Handle different input types
+        # handle different input types
         if isinstance(X, Series):
             data = X.flatten().values
 
@@ -21,14 +21,14 @@ class Algorithm(object):
                 raise ValueError("Array to factor must be 2-dimensional")
             data = X
 
-        # Factor
+        # factor
         if isinstance(data, ndarray):
             results = list(self._fit_local(data))
 
         if isinstance(data, BoltArraySpark):
             results =  list(self._fit_spark(data))
 
-        # Handle output types
+        # handle output types
         if isinstance(X, Series):
             res = results[0]
             newshape = X.baseshape + (res.shape[-1], )
