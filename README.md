@@ -36,8 +36,8 @@ All algorithms have a `fit` method with fits the algorithm and returns the compo
 #### `fit(X, return_parallel=False)`
 
 Input
-- `X` data matrix as a [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or a [`thunder`](https://github.com/thunder-project/thunder) `series` or `images`
-- `return_parallel` Whether or not to keep the output parallelized, only valid if the input matrix is already parallelized via `bolt` or `thunder`, default is `False` meaning thta all returned arrays will be local
+- `X` data matrix as a [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or [`thunder`](https://github.com/thunder-project/thunder) `series` or `images` data
+- `return_parallel` whether or not to keep the output parallelized, only valid if the input matrix is already parallelized via `bolt` or `thunder`, default is `False` meaning thta all returned arrays will be local
 
 Output
 - Two or more arrays representing the estimated factors.
