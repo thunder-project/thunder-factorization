@@ -16,10 +16,13 @@ class ICA(Algorithm):
 
     def _fit_local(self, data):
 
+
         from sklearn.decomposition import FastICA
+        from numpy import random
+        random.seed(self.seed)
         model = FastICA(n_components=self.k, fun="cube", max_iter=self.max_iter, tol=self.tol, random_state=self.seed)
-        signals = model.fit_transform(data.toarray())
-        return model.components_, signals, model.mixing_
+        signals = model.fit_transform(data)
+        return signals, model.mixing_.T
 
 
     def _fit_spark(self, data):
@@ -27,7 +30,9 @@ class ICA(Algorithm):
         from .SVD import SVD
         from numpy import sqrt, zeros, real, dot, outer, diag, transpose, random
         from scipy.linalg import sqrtm, inv, orth
+        from thunder.series import Series
 
+        data = Series(data).center(0)
         nrows = data.shape[0]
         ncols = data.shape[1]
 
@@ -42,17 +47,17 @@ class ICA(Algorithm):
             raise Exception("number of principal comps " + str(self.k) +
                             " must be less than the data dimensionality " + str(ncols))
 
-        # reduce dimensionality
-        u, s, v = SVD(k=self.k_pca, method=self.svd_method, seed=self.seed).fit(data)
-        s, v = s.toarray(), v.toarray()
-
-        # whiten data
-        wht_mat = real(dot(inv(diag(s/sqrt(nrows))), v.T))
-        unwht_mat = real(dot(v, diag(s/sqrt(nrows))))
-        wht = data.times(wht_mat.T)
-
         # seed the RNG
         random.seed(self.seed)
+
+        # reduce dimensionality
+        u, s, v = SVD(k=self.k_pca, method=self.svd_method).fit(data)
+        u = Series(u)
+
+        # whiten data
+        wht_mat = real(dot(inv(diag(s/sqrt(nrows))), v))
+        unwht_mat = real(dot(v.T, diag(s/sqrt(nrows))))
+        wht = data.times(wht_mat.T)
 
         # do multiple independent component extraction
         b = orth(random.randn(self.k_pca, self.k))
@@ -82,4 +87,4 @@ class ICA(Algorithm):
         # get components
         sigs = data.times(w.T)
 
-        return w, sigs, a
+        return sigs.values, a.T

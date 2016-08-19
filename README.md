@@ -1,7 +1,7 @@
 # thunder-factorization
 
 [![Latest Version](https://img.shields.io/pypi/v/thunder-factorization.svg?style=flat-square)](https://pypi.python.org/pypi/thunder-factorization)
-[![Build Status](https://img.shields.io/travis/thunder-project/thunder-factorization/master.svg?style=flat-square)](https://travis-ci.org/thunder-project/thunder-factorization) 
+[![Build Status](https://img.shields.io/travis/thunder-project/thunder-factorization/master.svg?style=flat-square)](https://travis-ci.org/thunder-project/thunder-factorization)
 
 > algorithms for large-scale matrix factorization
 
@@ -26,25 +26,30 @@ X = make_low_rank_matrix(n_samples=100, n_features=100, effective_rank=5)
 
 from factorization import PCA
 algorithm = PCA(k=5)
-W, T = algorithm.fit(X)
+T, W_T = algorithm.fit(X)
 ```
 
 ## api
 
 All algorithms have a `fit` method with returns the components of the factorization.
 
-#### `fit(X)`
+#### `fit(X, return_parallel=False)`
 
 Fits the algorithm to a data matrix
-- `X` data matrix, in the form of an [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or a [`thunder`](https://github.com/thunder-project/thunder) `series`
-- returns multiple arrays representing the factors, in the same form as the input
+
+Parameters:
+- `X` data matrix, in the form of an [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or a [`thunder`](https://github.com/thunder-project/thunder) `series` or `images`
+- `return_parallel` optional, default=`False`. Whether or not to keep the factors parallelized when possible. Only valid if the input matrix is parallelized via `bolt` or `thunder`.
+
+Return values:
+- Multiple arrays representing the factors.
 
 ## algorithms
 
 Here are all the available algorithms with their options.
 
-#### `W, S, A = ICA(k=3, k_pca=None, svd_method='auto', max_iter=10, tol=0.000001, seed=None).fit(X)`
-Unmixes statistically independent sources: `S = X * W^T` (unmixing) or `X = S * A^T` (mixing).
+#### `S, A = ICA(k=3, k_pca=None, svd_method='auto', max_iter=10, tol=0.000001, seed=None).fit(X)`
+Factors the matrix into statistically independent sources: `X = S * A`. Note: it is the *columns* of `S` that represent the independent sources, linear combinations of which reconstruct the *columns* of `X`.
 
 Parameters to constructor:
 - `k` number of sources
@@ -59,12 +64,11 @@ Parameters to constructor:
    SVD documentation for details.
 
 Return values:
-- `W`: demixing matrix, dimensions `k x ncols`
 - `S`: sources, dimensions `nrows x k`
-- `A`: mixing matrix (inverse of `W`), dimensions `ncols x k`
+- `A`: mixing matrix, dimensions `k x ncols`
 
 #### `W, H = NMF(k=5, max_iter=20, tol=0.001, seed=None).fit(X)`
-Factors a non-negative matrix as the product of two small non-negative matrices: `X = H * W`.
+Factors a non-negative matrix as the product of two small non-negative matrices: `X = W * H`.
 
 Parameters to constructor:
 - `k` number of components
@@ -73,8 +77,8 @@ Parameters to constructor:
 - `seed` seed for random number generator that initializes algorithm.
 
 Return values from `fit`:
-- `H` components, dimensions `nrows x k`
-- `W` weights, dimensions `k x ncols`
+- `W` left factor, dimensions `nrows x k`
+- `H` right factor, dimensions `k x ncols`
 
 #### `T, W = PCA(k=3, svd_method='auto', max_iter=20, tol=0.00001, seed=None).fit(X)`
 Performs dimensionality reduction by finding an ordered set of components formed by an orthogonal projection
@@ -96,7 +100,7 @@ Return values from `fit`
 
 
 #### `U, S, V = SVD(k=3, method="auto", max_iter=20, tol=0.00001, seed=None).fit(X)`
-Generalization of the eigen-decomposition to non-square matrices: `X = U * diag(S) * V^T`.
+Generalization of the eigen-decomposition for non-square matrices: `X = U * diag(S) * V`.
 
 Parameters to constructor:
 - `k` number of components
@@ -113,11 +117,18 @@ Parameters to constructor:
 Return values from `fit`:
 - `U` left singular vectors, dimensions `nrows x k`
 - `S` singular values, dimensions `k`
-- `V` right singular vectors, dimensions `ncols x k`
+- `V` right singular vectors, dimensions `k x ncols`
+
+## thunder objects
+Thunder `Images` and `Series` objects are the only objects with more than two dimensions that can be factored.
+* `Images`: each image will be flattened, creating a 2D matrix.
+* `Series`: keys will be flattened, creating a 2D matrix.
+
+After factoring, results over the flattened dimensions will be reshaped back to their original form.
 
 ## tests
 
-Run tests with 
+Run tests with
 
 ```bash
 py.test
