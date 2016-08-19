@@ -1,4 +1,4 @@
-__version__ = "1.0.0"
+__version__ = '1.0.0'
 
 from .algorithms.ICA import ICA
 from .algorithms.PCA import PCA
