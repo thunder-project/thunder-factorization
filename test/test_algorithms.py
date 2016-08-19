@@ -60,13 +60,11 @@ def test_svd(eng):
     u1, s1, v1 = randomized_svd(x.toarray(), n_components=2,  random_state=0)
 
     u2, s2, v2 = SVD(k=2, method='direct').fit(x)
-    u2 = array(u2)
     assert allclose_sign(u1, u2)
     assert allclose(s1, s2)
     assert allclose_sign(v1.T, v2.T)
 
     u2, s2, v2 = SVD(k=2, method='em', max_iter=100, seed=0).fit(x)
-    u2 = u2.toarray()
     tol = 1e-1
     assert allclose_sign(u1, u2, atol=tol)
     assert allclose(s1, s2, atol=tol)
@@ -82,12 +80,10 @@ def test_pca(eng):
     w1_T = pca.components_
 
     t2, w2_T = PCA(k=2, svd_method='direct').fit(x)
-    t2 = t2.toarray()
     assert allclose_sign(w1_T.T, w2_T.T)
     assert allclose_sign(t1, t2)
 
     t2, w2_T = PCA(k=2, svd_method='em', max_iter=100, seed=0).fit(x)
-    t2 = t2.toarray()
     tol = 1e-1
     assert allclose_sign(w1_T.T, w2_T.T, atol=tol)
     assert allclose_sign(t1, t2, atol=tol)
@@ -113,7 +109,6 @@ def test_ica(eng):
     s1, aT1 = normalize_ICA(s1, aT1)
 
     s2, aT2 = ICA(k=2, svd_method='direct', max_iter=200, seed=0).fit(x)
-    s2 = s2.toarray()
     s2, aT2 = normalize_ICA(s2, aT2)
     tol=1e-1
     assert allclose_sign_permute(s1, s2, atol=tol)
@@ -137,7 +132,6 @@ def test_nmf(eng):
     xhat1 = dot(w1, h1)
 
     w2, h2 = NMF(k=2, seed=0).fit(x)
-    w2 = w2.toarray()
     xhat2 = dot(w2, h2)
 
     tol=1e-1

@@ -29,7 +29,7 @@ class PCA(Algorithm):
         svd = SVD(k=self.k, method=self.svd_method, max_iter=self.max_iter, tol=self.tol, seed=self.seed)
         u, s, v = svd.fit(X)
 
-        t = u.times(diag(s))
+        t = Series(u).times(diag(s))
         w_T = v
 
         return t.values, w_T

@@ -33,11 +33,16 @@ T, W_T = algorithm.fit(X)
 
 All algorithms have a `fit` method with returns the components of the factorization.
 
-#### `fit(X)`
+#### `fit(X, return_parallel=False)`
 
 Fits the algorithm to a data matrix
-- `X` data matrix, in the form of an [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or a [`thunder`](https://github.com/thunder-project/thunder) `series`
-- returns multiple arrays representing the factors, in the same form as the input
+
+Parameters:
+- `X` data matrix, in the form of an [`numpy`](https://github.com/numpy/numpy) `ndarray`, a [`bolt`](https://github.com/bolt-project/bolt) `array`, or a [`thunder`](https://github.com/thunder-project/thunder) `series` or `images`
+- `return_parallel` optional, default=`False`. Whether or not to keep the factors parallelized when possible. Only valid if the input matrix is parallelized via `bolt` or `thunder`.
+
+Return values:
+- Multiple arrays representing the factors.
 
 ## algorithms
 
