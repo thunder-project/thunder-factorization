@@ -7,7 +7,7 @@ version = '1.0.0'
 required = open('requirements.txt').read().split('\n')
 
 setup(
-    name='factorization',
+    name='thunder-factorization',
     version=version,
     description='algorithms for scalable matrix factorization',
     author='jwittenbach',
