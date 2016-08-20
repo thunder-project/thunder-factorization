@@ -10,7 +10,11 @@ Many common matrix factorization algorithms can benefit from parallelization. Th
 The package includes a collection of `algorithms` that can be `fit` to data, all of which return matrices with the results of the factorization. Compatible with Python 2.7+ and 3.4+. Built on [`numpy`](https://github.com/numpy/numpy), [`scipy`](https://github.com/scipy/scipy), and [`scikit-learn`](https://github.com/scikit-learn/scikit-learn). Works well alongside [`thunder`](https://github.com/thunder-project/thunder) and supprts parallelization via [`spark`](https://github.com/apache/spark), but can also be used on local [`numpy`](https://github.com/numpy/numpy) arrays.
 
 ## installation
-Until we publish to PyPi, just clone this repository. The only dependencies are `numpy`, `scipy`, `scikit-learn`, and [`thunder`](https://github.com/thunder-project/thunder).
+Use `pip`
+
+```
+pip install thunder-factorization
+```
 
 ## example
 
