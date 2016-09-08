@@ -35,9 +35,9 @@ class Algorithm(object):
             results[0] = res.reshape(*newshape)
 
         elif isinstance(X, Images):
-            res = results[1]
+            res = results[-1]
             newshape = (res.shape[0], ) + X.value_shape
-            results[1] = res.reshape(*newshape)
+            results[-1] = res.reshape(*newshape)
 
         if not return_parallel:
             results[0] = asarray(results[0])
